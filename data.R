@@ -1,0 +1,8 @@
+library(dplyr)
+library(ggplot2)
+df <- read.csv("graduate-employment-survey-ntu-nus-sit-smu-sutd.csv", head=TRUE, na.strings = "na")
+df <- subset(df, !is.na(employment_rate_overall) & !is.na(gross_monthly_mean))
+df_by_university <- group_by(df, university, year)
+df_by_school <- group_by(df, university, School, year)
+df_total <- summarise(df_by_university, employment_rate_overall= as.integer(mean(employment_rate_overall)), gross_monthly_mean = as.integer(mean(gross_monthly_mean)))
+df_total_school <- summarise(df_by_school, employment_rate_overall= as.integer(mean(employment_rate_overall)), gross_monthly_mean = as.integer(mean(gross_monthly_mean)))

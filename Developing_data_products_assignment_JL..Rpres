@@ -1,0 +1,77 @@
+Singapore University Graduate Employment Survey
+========================================================
+author: Jia Lin
+date: 26-June-2016
+autosize: true
+<small>
+<font size="3">
+- The orginal data is downloaded from [data.gov.sg](https://data.gov.sg/dataset/graduate-employment-survey-ntu-nus-sit-smu-sutd).  
+- Any analysis or transformation of data are made by myself and shall not be attributed to the Singapore Government or its Statutory Boards;
+- [terms to use](https://data.gov.sg/terms). 
+</font>
+</small>
+Summary
+========================================================
+<small>
+The datasets include three years, 5 universities' data. Type of school is added manually by myself.  
+The app source is available at [GitHub](https://github.com/Jia-Lin/developing_data_products_assignment)
+</small>
+<font size="3">
+``` {r echo=FALSE}
+library(dplyr)
+library(ggplot2)
+``` {r}
+df <- read.csv("graduate-employment-survey-ntu-nus-sit-smu-sutd.csv", head=TRUE, na.strings = "na")
+head(df)
+```
+</font>
+Overall Employment Rate
+========================================================
+left: 40%
+<font size ="5">
+This graph shows the overall employment rate for all schools.
+</font>
+***
+```{r echo=FALSE}
+df <- subset(df, !is.na(employment_rate_overall) & !is.na(gross_monthly_mean))
+df_by_university <- group_by(df, university, year)
+df_total <- summarise(df_by_university, employment_rate_overall= as.integer(mean(employment_rate_overall)), gross_monthly_mean = as.integer(mean(gross_monthly_mean)))
+gp <- ggplot(data = df_total, aes(x=year, y=employment_rate_overall, fill=university))  
+gp <- gp + scale_y_continuous(name="Employment Rate")
+gp <- gp + geom_bar(stat="identity", position=position_dodge())
+gp <- gp + geom_text(aes(label=employment_rate_overall),  position = position_dodge(0.9))
+gp
+```
+
+Gross Monthly Salary
+========================================================
+left: 40%
+<font size ="5">
+This graph shows the gross monthly salary mean for all schools.
+</font>
+***
+``` {r echo=FALSE}
+gp <- ggplot(data = df_total, aes(x=year, y=gross_monthly_mean, fill=university))
+gp <- gp + scale_y_continuous(name="Gross Monthly (SGD)" )
+gp <- gp + geom_bar(stat="identity", position=position_dodge())
+gp <- gp + geom_text(aes(label=gross_monthly_mean),  position = position_dodge(0.9))
+gp
+```
+Employment Rate by School
+========================================================
+left: 30%
+<font size ="5">
+This graph shows the employment rate by type of school in year 2015.
+</font>
+***
+``` {r echo=FALSE}
+df2015 <- subset(df, year==2015)
+df_by_school <- group_by(df2015, School, year)
+df_total_school <- summarise(df_by_school, employment_rate_overall= as.integer(mean(employment_rate_overall)), gross_monthly_mean = as.integer(mean(gross_monthly_mean)))
+df_total_school <- df_total_school[order(df_total_school$employment_rate_overall),]
+gp <- ggplot(data = df_total_school, aes(x=year, y=employment_rate_overall, fill=School))
+gp <- gp + scale_y_continuous(name="Employment Rate by School" )
+gp <- gp + geom_bar(stat="identity", position=position_dodge())
+gp <- gp + geom_text(aes(label=employment_rate_overall),  position = position_dodge(0.9))
+gp
+```

@@ -1,0 +1,11 @@
+library(dplyr)
+library(ggplot2)
+df <- read.csv("graduate-employment-survey-ntu-nus-sit-smu-sutd.csv", head=TRUE, na.strings = "na")
+df <- subset(df, !is.na(employment_rate_overall) & !is.na(gross_monthly_mean))
+df_by_university <- group_by(df, university, year)
+df_total <- summarise(df_by_university, employment_rate_overall= as.integer(mean(employment_rate_overall)), gross_monthly_mean = as.integer(mean(gross_monthly_mean)))
+gp <- ggplot(data = df_total, aes(x=year, y=gross_monthly_mean, fill=university))
+gp = gp + scale_y_continuous(name="Gross Monthly", breaks=2000, limits=c(0, 5000) )
+gp <- gp + geom_bar(stat="identity", position=position_dodge())
+gp <- gp + geom_text(aes(label=gross_monthly_mean),  position = position_dodge(0.9))
+gp
